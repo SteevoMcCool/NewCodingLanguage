@@ -36,10 +36,21 @@ struct Variable{
     void* value;
     string rtype;
 }
+enum charType {
+    operator;
+    opener;
+    character;
+    closer;
+    whitespace;
+    newline;
+}
+
+string[] numbers = ["0","1","2","3","4","5","6","7","8","9","."]
 
 class Scope{
     public:
         string text;
+        string activeText;
         vector<Variable> variables;
         void translate(){
             for (i == 0; i < text.size(), i= i + 1) {
@@ -49,7 +60,45 @@ class Scope{
                 }
             }
         };
+        string getToken() {
+            charType info = whitespace;
+            string ret = ""
+            for (int i=0; i< activeText.length();i++) {
+                string ch = activeText.substr(i,1);
+                if (ch == " "){
+                    if (info != whitespace){
+                        activeText = activeText.substr(0,i)
+                        return ret
+                    }
+                }else if (ch=="\n" || ch==";"){
+                    if (info !=whitespace){
+                        activeText = activeText.substr(0,i)
+                        return ret                      
+                    }else if (info == whitespace){
+                        activeText = activeText.substr(0,i+1)
+                        return ";"                     
+                    }
+                }else if (ch=="[" || ch=="(" || ch=="."||ch==")"||ch=='"'||ch=="'"||ch=="]"||ch=="{"||ch=="}"){
+                    if (info !=whitespace){
+                        activeText = activeText.substr(0,i)
+                        return ret                      
+                    }else if (info == whitespace){
+                        activeText = activeText.substr(0,i+1)
+                        return ch                     
+                    }                
+                }else {
+                 if (info !=whitespace && info !=character){
+                        activeText = activeText.substr(0,i)
+                        return ret                      
+                    }else if (info == whitespace){
+                        info = character
+                        ret.append(ch)               
+                    }                    
+                }
+            }
+        }
         void* interpert(){
+            activeText = text;
             string lineHeader = getToken();
             if (lineHeader == "sc"){
                 string name = getToken();
